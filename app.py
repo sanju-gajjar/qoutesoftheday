@@ -17,13 +17,9 @@ def create_gradient_background(width, height, color1, color2):
     top = Image.new('RGB', (width, height), color2)
     mask = Image.new('L', (width, height))
     
-    gradient = []
-    for y in range(height):
-        gradient.append(int(255 * (y / height)))
-    
-    for y in range(height):
-        for x in range(width):
-            mask.putpixel((x, y), gradient[y])
+    gradient = np.linspace(0, 255, height)
+    gradient = np.tile(gradient, (width, 1)).T.astype(np.uint8)
+    mask = Image.fromarray(gradient)
     
     base.paste(top, (0, 0), mask)
     return base
@@ -40,23 +36,17 @@ def get_random_quote():
 # 3. Create image with gradient background and quote text
 def create_image_with_text(image, text):
     draw = ImageDraw.Draw(image)
-    try:
-        font = ImageFont.truetype("arial.ttf", 70)  # Provide the path to a TTF file if needed
-    except IOError:
-        font = ImageFont.load_default()  # Fallback to default font if specific font is not available
+    font = ImageFont.load_default()  # Use default font
     
-    # Define the position to place the text
     width, height = image.size
     text_position = (width // 10, height // 3)
-    
-    # Add the text to the image
     draw.text(text_position, text, font=font, fill="white")
     return image
 
 # 4. Animate text and create a video
 def create_video(image, text):
     img_clip = ImageClip(np.array(image)).set_duration(15)
-    txt_clip = TextClip(text, fontsize=70, color='white', font='Arial-Bold')
+    txt_clip = TextClip(text, fontsize=70, color='white')  # Use default font
     txt_clip = txt_clip.set_position('center').set_duration(15).fadein(1, (255,255,255))
 
     video_path = os.path.join(VIDEO_DIR, "daily_quote.mp4")
@@ -65,24 +55,15 @@ def create_video(image, text):
 
 @app.route('/')
 def index():
-    # Generate video if not already created
     video_path = os.path.join(VIDEO_DIR, "daily_quote.mp4")
     if not os.path.exists(video_path):
-        # Define the image size and colors for the gradient
         width, height = 1080, 1920
         color1 = (255, 153, 102)  # Example: soft orange
         color2 = (255, 94, 98)    # Example: soft pink
         
-        # Create gradient background
         image = create_gradient_background(width, height, color1, color2)
-        
-        # Get a random quote
         quote = get_random_quote()
-        
-        # Add the quote to the image
         image_with_text = create_image_with_text(image, quote)
-        
-        # Create a video with the image and text
         create_video(image_with_text, quote)
 
     return '''
