@@ -40,7 +40,10 @@ def get_random_quote():
 # 3. Create image with gradient background and quote text
 def create_image_with_text(image, text):
     draw = ImageDraw.Draw(image)
-    font = ImageFont.load_default()  # Using the default font
+    try:
+        font = ImageFont.truetype("arial.ttf", 70)  # Provide the path to a TTF file if needed
+    except IOError:
+        font = ImageFont.load_default()  # Fallback to default font if specific font is not available
     
     # Define the position to place the text
     width, height = image.size
