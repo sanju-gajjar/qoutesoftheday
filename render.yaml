@@ -1,0 +1,1 @@
+services:%0A%20%20-%20type%3A%20web%0A%20%20%20%20name%3A%20video-app%0A%20%20%20%20env%3A%20static%0A%20%20%20%20buildCommand%3A%20''%0A%20%20%20%20startCommand%3A%20''%0A%20%20%20%20plan%3A%20free%0A%20%20%20%20staticPublishPath%3A%20public%0A

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Generator</title>
+</head>
+<body>
+    <canvas id="canvas" width="1080" height="1920"></canvas>
+    <button id="generate">Generate Video</button>
+    <a id="downloadLink" style="display:none">Download Video</a>
+    
+    <script>
+        function createGradientBackground(canvas) {
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            const gradient = ctx.createLinearGradient(0, 0, 0, height);
+            gradient.addColorStop(0, '#FF9900'); // Color 1
+            gradient.addColorStop(1, '#FF5E5E'); // Color 2
+            
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, width, height);
+        }
+
+        function drawText(canvas, text) {
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            ctx.font = '70px Arial'; // Font size and family
+            ctx.fillStyle = 'white';
+            ctx.textAlign = 'center';
+            ctx.fillText(text, width / 2, height / 2);
+        }
+
+        function createVideo() {
+            const canvas = document.getElementById('canvas');
+            createGradientBackground(canvas);
+            drawText(canvas, 'This is a sample quote');
+            
+            const stream = canvas.captureStream(30); // 30 FPS
+            const mediaRecorder = new MediaRecorder(stream);
+            const chunks = [];
+            
+            mediaRecorder.ondataavailable = function(e) {
+                chunks.push(e.data);
+            };
+            
+            mediaRecorder.onstop = function() {
+                const blob = new Blob(chunks, { type: 'video/webm' });
+                const url = URL.createObjectURL(blob);
+                const link = document.getElementById('downloadLink');
+                link.href = url;
+                link.download = 'daily_quote.webm';
+                link.style.display = 'block';
+                link.textContent = 'Download Video';
+            };
+            
+            mediaRecorder.start();
+            setTimeout(() => {
+                mediaRecorder.stop();
+            }, 15000); // Record for 15 seconds
+        }
+
+        document.getElementById('generate').addEventListener('click', createVideo);
+    </script>
+</body>
+</html>
