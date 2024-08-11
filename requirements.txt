@@ -2,3 +2,4 @@ Flask
 Pillow
 moviepy
 numpy
+gunicorn
